@@ -21,14 +21,8 @@
         android:padding="5px"
         android:layout_height="wrap_content"
         android:text="Play"
-        android:id="@+id/Play" />
-    <Button
-        android:layout_height="wrap_content"
-        android:padding="5px"
-        app:layout_constraintLeft_toRightOf="@+id/Play"
-        android:layout_width="wrap_content"
-        android:text= "Pause"
-        android:id = "@+id/Pause"/>
+        android:id="@+id/ctr" />
+
     </LinearLayout>
 
     <ListView
@@ -46,4 +40,5 @@
   />
 
 </LinearLayout>
+
 </android.support.constraint.ConstraintLayout>

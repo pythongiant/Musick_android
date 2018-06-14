@@ -22,15 +22,15 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        val play_button = findViewById(R.id.Play) as Button
-        val pause_button = findViewById(R.id.Pause) as Button
+        val ctr_button = findViewById(R.id.ctr) as Button
         val listView=findViewById<ListView>(R.id.Music)
 
         val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         val StringArray = path.list().toMutableList()
+        val StringArrayIterator = StringArray.iterator()
         for (Song in StringArray){
             if (Song.takeLast(4) != ".mp3"){
-                StringArray.remove(Song)
+                StringArrayIterator.remove()
             }
         }
         val adapter = ArrayAdapter<String>(this, R.layout.activity_listview, StringArray)
@@ -48,16 +48,13 @@ class MainActivity : AppCompatActivity() {
             val toast = Toast.makeText(this,"Playing "+pos,duration)
             toast.show()
         }
-
-
-        play_button.setOnClickListener{
-
-            mediaPlayer.start()
-        }
-        pause_button.setOnClickListener{
-        if (mediaPlayer.isPlaying()){
-            mediaPlayer.pause()
-        }
+        ctr_button.setOnClickListener{
+            if (mediaPlayer.isPlaying()){
+                mediaPlayer.pause()
+            }
+            else{
+                mediaPlayer.start()
+            }
         }
     }
 }
