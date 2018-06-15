@@ -12,49 +12,84 @@ import android.widget.AdapterView.OnItemClickListener
 import java.io.BufferedInputStream
 import java.io.InputStream
 
-
 class MainActivity : AppCompatActivity() {
+    fun CheckAction(ctr_button:ImageButton,mediaPlayer:MediaPlayer){
+        ctr_button.setOnClickListener{
+            if (mediaPlayer.isPlaying()){
+                mediaPlayer.pause()
+                ctr_button.setImageResource(R.drawable.play_struc)
+            }
+            else{
+                ctr_button.setImageResource(R.drawable.pause_struc)
+                mediaPlayer.start()
+            }
+        }
+    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
+    val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    val bluePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
 
+    val StringArray = mutableListOf<String>()
 
-        setContentView(R.layout.activity_main)
+    fun TreatFiles() {
+        for (Song in path.list().iterator()) {
+            StringArray.add(Song)
 
-        val ctr_button = findViewById(R.id.ctr) as Button
-        val listView=findViewById<ListView>(R.id.Music)
-
-        val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        val StringArray = path.list().toMutableList()
+        }
+        for (Song in bluePath.list().iterator()) {
+            StringArray.add(Song)
+        }
         val StringArrayIterator = StringArray.iterator()
-        for (Song in StringArray){
-            if (Song.takeLast(4) != ".mp3"){
+        for (i in StringArrayIterator) {
+            if (i.takeLast(4) != ".mp3") {
                 StringArrayIterator.remove()
             }
         }
-        val adapter = ArrayAdapter<String>(this, R.layout.activity_listview, StringArray)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val ctr_button = findViewById(R.id.ctr) as ImageButton
+        ctr_button.setImageResource(R.drawable.play_struc)
+        val listView=findViewById<ListView>(R.id.Music)
+        TreatFiles()
+
+        val values= arrayListOf<HashMap<String,String>>()
+        for (song in StringArray){
+            val value=HashMap<String,String>()
+            value.put("song",song.removeSuffix(".mp3"))
+            value.put("artist",song)
+            values.add(value)
+        }
+
+        val from = arrayOf("song", "artist")//string array
+        val to = intArrayOf(R.id.song, R.id.artist)
+        val adapter = SimpleAdapter(this,values, R.layout.activity_listview, from,to)
         listView.adapter = adapter;
         val pos= StringArray[0]
-        val filePos = Uri.parse(path.absolutePath+'/'+pos)
+        var filePos = Uri.parse(path.absolutePath+'/'+pos)
         var mediaPlayer = MediaPlayer.create(this, filePos)
 
         listView.onItemClickListener=AdapterView.OnItemClickListener{adapterView, view, position, id ->
             val pos= StringArray[position]
-            val filePos = Uri.parse(path.absolutePath+'/'+pos)
-            mediaPlayer = MediaPlayer.create(this, filePos)
+            filePos = Uri.parse(path.absolutePath+'/'+pos)
+            if (mediaPlayer.isPlaying){
+                mediaPlayer.release()
+            }
+
+            if(filePos == null){
+                filePos = Uri.parse(bluePath.absolutePath+'/'+pos)
+                mediaPlayer = MediaPlayer.create(this, filePos)
+            }
+            CheckAction(ctr_button,mediaPlayer)
 
             val duration = Toast.LENGTH_LONG
             val toast = Toast.makeText(this,"Playing "+pos,duration)
             toast.show()
         }
-        ctr_button.setOnClickListener{
-            if (mediaPlayer.isPlaying()){
-                mediaPlayer.pause()
-            }
-            else{
-                mediaPlayer.start()
-            }
-        }
     }
-}
+    }
+

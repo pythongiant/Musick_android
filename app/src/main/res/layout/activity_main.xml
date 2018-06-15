@@ -6,29 +6,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
-    <Button
-        android:layout_width="wrap_content"
-        android:padding="5px"
-        android:layout_height="wrap_content"
-        android:text="Play"
-        android:id="@+id/ctr" />
+        <ImageButton
+            android:id="@+id/ctr"
+            android:layout_width="20pt"
+            android:layout_height="20pt"
+            android:padding="5px"
+            android:layout_gravity="center"
+            android:background="?android:selectableItemBackground"
+             />
 
-    </LinearLayout>
 
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:id="@+id/Music"
         ></ListView>
 
