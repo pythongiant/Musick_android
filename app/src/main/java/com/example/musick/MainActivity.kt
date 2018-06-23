@@ -21,6 +21,7 @@ import android.media.MediaMetadataRetriever
 
 
 class MainActivity() : AppCompatActivity() {
+
     fun CheckAction(ctr_button:ImageButton,mediaPlayer:MediaPlayer){
         ctr_button.setOnClickListener{
             if (mediaPlayer.isPlaying()){
@@ -40,6 +41,7 @@ class MainActivity() : AppCompatActivity() {
     val StringArray = mutableListOf<String>() //String of Songs
 
     fun TreatFiles() {
+
         for (Song in path.list().iterator()) {
             StringArray.add(Song)
 
@@ -77,10 +79,15 @@ class MainActivity() : AppCompatActivity() {
             if (File(path.absolutePath+'/'+song).exists()) {
                 metaRetriver.setDataSource(path.absolutePath + '/' + song)
             }
-            else{
+            else {
                 metaRetriver.setDataSource(bluePath.absolutePath + '/' + song)
             }
-            value.put("artist", metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM))
+            try {
+                value.put("artist", metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM))
+            }
+            catch (e:Exception ) {
+                value.put("artist","unknown")
+            }
             values.add(value)
         }
 
@@ -91,37 +98,30 @@ class MainActivity() : AppCompatActivity() {
         val to = intArrayOf(R.id.song, R.id.artist)
         val adapter = SimpleAdapter(this, values, R.layout.activity_listview, from, to)
         listView.adapter = adapter;
-
-        //Initialise starting points for media Player
-        val pos = StringArray[0]
-        var filePos = Uri.parse(path.absolutePath + '/' + pos)
-        var mediaPlayer = MediaPlayer.create(this, filePos)
-
-
-        fun mediaCreate(mPath:File) {
-            filePos = Uri.parse(mPath.absolutePath+'/'+pos)
-
-            state_button.text = pos.removeSuffix(".mp3").take(30)
-            mediaPlayer = MediaPlayer.create(this, filePos)
-            ctr_button.setImageResource(R.drawable.ic_pause_black_24dp)
-            mediaPlayer.start()
-        }
-
-
+        var mediaPlayer = MediaPlayer()
         listView.onItemClickListener=AdapterView.OnItemClickListener{adapterView, view, position, id ->
             //get the items at the clicked position
             val pos= StringArray[position]
-            filePos = Uri.parse(path.absolutePath+'/'+pos)
-
-            if (mediaPlayer.isPlaying){
+            var filePos = Uri.parse(path.absolutePath+'/'+pos)
+            if(mediaPlayer.isPlaying){
                 mediaPlayer.release()
             }
 
+
             if(filePos == null){
-                mediaCreate(bluePath)
+                filePos = Uri.parse(bluePath.absolutePath+'/'+pos)
+                state_button.text = pos.removeSuffix(".mp3").take(30)
+                mediaPlayer = MediaPlayer.create(this, filePos)
+                ctr_button.setImageResource(R.drawable.ic_pause_black_24dp)
+                mediaPlayer.start()
             }
             else{
-                mediaCreate(path)
+
+                filePos = Uri.parse(path.absolutePath+'/'+pos)
+                state_button.text = pos.removeSuffix(".mp3").take(30)
+                mediaPlayer = MediaPlayer.create(this, filePos)
+                ctr_button.setImageResource(R.drawable.ic_pause_black_24dp)
+                mediaPlayer.start()
             }
             CheckAction(ctr_button,mediaPlayer)
 
