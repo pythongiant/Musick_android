@@ -7,30 +7,37 @@ import android.os.Environment
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Parcel
+import android.os.Parcelable
+import android.util.Log
 import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
+import org.w3c.dom.Text
 import java.io.BufferedInputStream
+import java.io.File
 import java.io.InputStream
+import android.media.MediaMetadataRetriever
 
-class MainActivity : AppCompatActivity() {
+
+
+class MainActivity() : AppCompatActivity() {
     fun CheckAction(ctr_button:ImageButton,mediaPlayer:MediaPlayer){
         ctr_button.setOnClickListener{
             if (mediaPlayer.isPlaying()){
                 mediaPlayer.pause()
-                ctr_button.setImageResource(R.drawable.play_struc)
+                ctr_button.setImageResource(R.drawable.ic_play_circle_filled_black_24dp)
             }
             else{
-                ctr_button.setImageResource(R.drawable.pause_struc)
+                ctr_button.setImageResource(R.drawable.ic_pause_black_24dp)
                 mediaPlayer.start()
             }
         }
     }
 
-
-    val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-    val bluePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
-
-    val StringArray = mutableListOf<String>()
+    //gather files ,remove .mp3
+    val path=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    val bluePath =Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
+    val StringArray = mutableListOf<String>() //String of Songs
 
     fun TreatFiles() {
         for (Song in path.list().iterator()) {
@@ -52,37 +59,69 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //Initialise everything
         val ctr_button = findViewById(R.id.ctr) as ImageButton
-        ctr_button.setImageResource(R.drawable.play_struc)
-        val listView=findViewById<ListView>(R.id.Music)
+        val ctr_prev_button = findViewById(R.id.ctr_prev) as ImageButton
+        val ctr_next_button = findViewById(R.id.ctr_next) as ImageButton
+        val state_button = findViewById(R.id.State) as TextView
+        //TreatFiles (remove .mp3 , add them to array
         TreatFiles()
+        val values = arrayListOf<HashMap<String, String>>()
 
-        val values= arrayListOf<HashMap<String,String>>()
-        for (song in StringArray){
-            val value=HashMap<String,String>()
-            value.put("song",song.removeSuffix(".mp3"))
-            value.put("artist",song)
+        //add songs to a HashMap for ListView
+        for (song in StringArray) {
+            val value = HashMap<String, String>()
+            Log.i(song,song)
+            value.put("song", song.removeSuffix(".mp3"))
+            var metaRetriver = MediaMetadataRetriever()
+            if (File(path.absolutePath+'/'+song).exists()) {
+                metaRetriver.setDataSource(path.absolutePath + '/' + song)
+            }
+            else{
+                metaRetriver.setDataSource(bluePath.absolutePath + '/' + song)
+            }
+            value.put("artist", metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM))
             values.add(value)
         }
 
+        ctr_button.setImageResource(R.drawable.ic_play_circle_filled_black_24dp)
+        val listView = findViewById<ListView>(R.id.Music)
+        //add songs, artists to adapter
         val from = arrayOf("song", "artist")//string array
         val to = intArrayOf(R.id.song, R.id.artist)
-        val adapter = SimpleAdapter(this,values, R.layout.activity_listview, from,to)
+        val adapter = SimpleAdapter(this, values, R.layout.activity_listview, from, to)
         listView.adapter = adapter;
-        val pos= StringArray[0]
-        var filePos = Uri.parse(path.absolutePath+'/'+pos)
+
+        //Initialise starting points for media Player
+        val pos = StringArray[0]
+        var filePos = Uri.parse(path.absolutePath + '/' + pos)
         var mediaPlayer = MediaPlayer.create(this, filePos)
 
+
+        fun mediaCreate(mPath:File) {
+            filePos = Uri.parse(mPath.absolutePath+'/'+pos)
+
+            state_button.text = pos.removeSuffix(".mp3").take(30)
+            mediaPlayer = MediaPlayer.create(this, filePos)
+            ctr_button.setImageResource(R.drawable.ic_pause_black_24dp)
+            mediaPlayer.start()
+        }
+
+
         listView.onItemClickListener=AdapterView.OnItemClickListener{adapterView, view, position, id ->
+            //get the items at the clicked position
             val pos= StringArray[position]
             filePos = Uri.parse(path.absolutePath+'/'+pos)
+
             if (mediaPlayer.isPlaying){
                 mediaPlayer.release()
             }
 
             if(filePos == null){
-                filePos = Uri.parse(bluePath.absolutePath+'/'+pos)
-                mediaPlayer = MediaPlayer.create(this, filePos)
+                mediaCreate(bluePath)
+            }
+            else{
+                mediaCreate(path)
             }
             CheckAction(ctr_button,mediaPlayer)
 
@@ -91,5 +130,5 @@ class MainActivity : AppCompatActivity() {
             toast.show()
         }
     }
-    }
 
+}
