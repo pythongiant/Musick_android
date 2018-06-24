@@ -26,6 +26,13 @@
         android:layout_height="wrap_content"
         android:id="@+id/State"
    />
+    <SeekBar
+        android:layout_width="100pt"
+        android:layout_height="wrap_content"
+        android:max="100"
+        
+        android:id="@+id/seek"
+        />
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

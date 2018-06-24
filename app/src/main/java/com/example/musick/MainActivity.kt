@@ -17,7 +17,7 @@ import java.io.BufferedInputStream
 import java.io.File
 import java.io.InputStream
 import android.media.MediaMetadataRetriever
-
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity() : AppCompatActivity() {
@@ -38,6 +38,7 @@ class MainActivity() : AppCompatActivity() {
     //gather files ,remove .mp3
     val path=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
     val bluePath =Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
+    val sdPath = Environment.getExternalStorageDirectory()
     val StringArray = mutableListOf<String>() //String of Songs
 
     fun TreatFiles() {
@@ -66,6 +67,7 @@ class MainActivity() : AppCompatActivity() {
         val ctr_prev_button = findViewById(R.id.ctr_prev) as ImageButton
         val ctr_next_button = findViewById(R.id.ctr_next) as ImageButton
         val state_button = findViewById(R.id.State) as TextView
+        val seekbar=findViewById<SeekBar>(R.id.seek)
         //TreatFiles (remove .mp3 , add them to array
         TreatFiles()
         val values = arrayListOf<HashMap<String, String>>()
@@ -73,8 +75,7 @@ class MainActivity() : AppCompatActivity() {
         //add songs to a HashMap for ListView
         for (song in StringArray) {
             val value = HashMap<String, String>()
-            Log.i(song,song)
-            value.put("song", song.removeSuffix(".mp3"))
+
             var metaRetriver = MediaMetadataRetriever()
             if (File(path.absolutePath+'/'+song).exists()) {
                 metaRetriver.setDataSource(path.absolutePath + '/' + song)
@@ -82,11 +83,20 @@ class MainActivity() : AppCompatActivity() {
             else {
                 metaRetriver.setDataSource(bluePath.absolutePath + '/' + song)
             }
-            try {
+            if(metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)!=null){
                 value.put("artist", metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM))
             }
-            catch (e:Exception ) {
+            else{
                 value.put("artist","unknown")
+            }
+            try {
+            value.put("song", metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE))
+
+            }
+            catch (e:Exception ) {
+                value.put("song",song.removeSuffix(".mp3"))
+
+
             }
             values.add(value)
         }
@@ -99,16 +109,51 @@ class MainActivity() : AppCompatActivity() {
         val adapter = SimpleAdapter(this, values, R.layout.activity_listview, from, to)
         listView.adapter = adapter;
         var mediaPlayer = MediaPlayer()
+        seekbar.progress=25
+
+        var pos_2 = 0
         listView.onItemClickListener=AdapterView.OnItemClickListener{adapterView, view, position, id ->
             //get the items at the clicked position
             val pos= StringArray[position]
+            pos_2=position
             var filePos = Uri.parse(path.absolutePath+'/'+pos)
             if(mediaPlayer.isPlaying){
                 mediaPlayer.release()
             }
 
 
-            if(filePos == null){
+            if(MediaPlayer.create(this, filePos) == null){
+                filePos = Uri.parse(bluePath.absolutePath+'/'+pos)
+                state_button.text = pos.removeSuffix(".mp3").take(30)
+                mediaPlayer = MediaPlayer.create(this, filePos)
+                ctr_button.setImageResource(R.drawable.ic_pause_black_24dp)
+
+                mediaPlayer.start()
+            }
+            else{
+                filePos = Uri.parse(path.absolutePath+'/'+pos)
+                state_button.text = pos.removeSuffix(".mp3").take(30)
+                mediaPlayer = MediaPlayer.create(this, filePos)
+                ctr_button.setImageResource(R.drawable.ic_pause_black_24dp)
+                mediaPlayer.start()
+            }
+            CheckAction(ctr_button,mediaPlayer)
+
+            val duration = Toast.LENGTH_LONG
+            val toast = Toast.makeText(this,"Playing "+pos,duration)
+            toast.show()
+        }
+        ctr_prev_button.setOnClickListener{
+            pos_2-=1
+            //get the items at the clicked position
+            val pos= StringArray[pos_2]
+            var filePos = Uri.parse(path.absolutePath+'/'+pos)
+            if(mediaPlayer.isPlaying){
+                mediaPlayer.release()
+            }
+
+
+            if(MediaPlayer.create(this, filePos) == null){
                 filePos = Uri.parse(bluePath.absolutePath+'/'+pos)
                 state_button.text = pos.removeSuffix(".mp3").take(30)
                 mediaPlayer = MediaPlayer.create(this, filePos)
@@ -129,6 +174,38 @@ class MainActivity() : AppCompatActivity() {
             val toast = Toast.makeText(this,"Playing "+pos,duration)
             toast.show()
         }
+        ctr_next_button.setOnClickListener{
+            pos_2+=1
+            //get the items at the clicked position
+            val pos= StringArray[pos_2]
+            var filePos = Uri.parse(path.absolutePath+'/'+pos)
+            if(mediaPlayer.isPlaying){
+                mediaPlayer.release()
+            }
+
+
+            if(MediaPlayer.create(this, filePos)==null){
+                filePos = Uri.parse(bluePath.absolutePath+'/'+pos)
+                state_button.text = pos.removeSuffix(".mp3").take(30)
+                mediaPlayer = MediaPlayer.create(this, filePos)
+                ctr_button.setImageResource(R.drawable.ic_pause_black_24dp)
+                mediaPlayer.start()
+            }
+            else{
+
+                filePos = Uri.parse(path.absolutePath+'/'+pos)
+                state_button.text = pos.removeSuffix(".mp3").take(30)
+                mediaPlayer = MediaPlayer.create(this, filePos)
+                ctr_button.setImageResource(R.drawable.ic_pause_black_24dp)
+                mediaPlayer.start()
+            }
+            CheckAction(ctr_button,mediaPlayer)
+
+            val duration = Toast.LENGTH_LONG
+            val toast = Toast.makeText(this,"Playing "+pos,duration)
+            toast.show()
+        }
+        }
     }
 
-}
+
