@@ -83,8 +83,8 @@ class MainActivity() : AppCompatActivity() {
             else {
                 metaRetriver.setDataSource(bluePath.absolutePath + '/' + song)
             }
-            if(metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)!=null){
-                value.put("artist", metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM))
+            if(metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)!=null){
+                value.put("artist", metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST))
             }
             else{
                 value.put("artist","unknown")
