@@ -15,8 +15,9 @@
             android:layout_width="wrap_content"
             android:layout_gravity="center"
             android:padding="5dp"
+            android:id="@+id/art"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_video_library_black_24dp"
+            android:src="@drawable/ic_library_music_black_24dp"
             />
         <LinearLayout
             android:layout_height="wrap_content"
@@ -27,7 +28,7 @@
                 android:id="@+id/song"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingTop="10dip"
+                android:paddingTop="5dip"
 
                 android:paddingLeft="10dip"
                 android:textSize="16dip"
