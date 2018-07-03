@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingTop="5dip"
-
+                android:fontFamily="@font/aileron"
                 android:paddingLeft="10dip"
                 android:textSize="16dip"
                 android:singleLine="true"
@@ -44,7 +44,6 @@
                 android:id="@+id/artist"
                 android:singleLine="true"
                 android:ellipsize="end"
-                android:textStyle="bold"
                 />
         </LinearLayout>
     </LinearLayout>
