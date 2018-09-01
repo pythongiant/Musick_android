@@ -108,22 +108,26 @@ class MainActivity : AppCompatActivity() {
 
     }
     //gather files ,remove .mp3
-    val path=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    val path=File("/storage/self/primary/Download/")
+
     val bluePath =Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
     val sdPath = Environment.getExternalStorageDirectory()
+
     val StringArray = mutableListOf<String>() //String of Songs
     val values = arrayListOf<HashMap<String, String>>()
 
     private fun TreatFiles() {
-
+        if(path.list()!=null){
         for (Song in path.list().iterator()) {
             StringArray.add(Song)
 
         }
+            }
+        if(bluePath.list()!=null){
         for (Song in bluePath.list().iterator()) {
             StringArray.add(Song)
         }
-
+        }
         val StringArrayIterator = StringArray.iterator()
         for (i in StringArrayIterator) {
             if (i.takeLast(4) != ".mp3") {
@@ -224,6 +228,8 @@ class MainActivity : AppCompatActivity() {
             mediaPlayer.seekTo(0)
             buttonClickCustomAction(state_button,ctr_button,1)
         }
+        Log.i("Path",path.toString())
+        Log.i("BluePath",bluePath.toString())
 
         listView.onItemClickListener=AdapterView.OnItemClickListener{adapterView, view, position, id ->
             //get the items at the clicked position
@@ -279,6 +285,7 @@ class MainActivity : AppCompatActivity() {
             seekBar.progress=0
             mediaPlayer.seekTo(0)
             buttonClickCustomAction(state_button,ctr_button,1)
+
             mediaPlayer.setOnCompletionListener {
                 seekBar.progress=0
                 mediaPlayer.seekTo(0)
@@ -290,6 +297,24 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
+
+/*
+*
+* try{
+                var song = StringArray[position]
+                var metarRetr = MediaMetadataRetriever()
+                metarRetr.setDataSource(bluePath.absolutePath + '/' + song)
+
+                var art = BitmapFactory.decodeByteArray(metarRetr.embeddedPicture,0,metarRetr.embeddedPicture.count())
+                albumArt.setImageBitmap(art)
+
+            }
+            catch (e:Exception){
+                Log.i("metaRetriver called","fail")
+                albumArt.setImageResource(R.drawable.ic_library_music_black_24dp)
+            }
+* */
+
 
 
 
